@@ -1,7 +1,8 @@
 {
   "ExpandedNodes": [
-    ""
+    "",
+    "\\ArigridSource"
   ],
-  "SelectedNode": "\\try.txt",
+  "SelectedNode": "\\ArigridSource\\BaseActor.cpp",
   "PreviewInSolutionExplorer": false
 }
