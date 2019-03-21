@@ -402,7 +402,6 @@ void UDPMainComponent::Spawn(ABladeMotor2 * SpawnedActor)
 					BigBox->MakeDynamicConnection(SpawnedActor);
 				}
 				break;
-
 			}
 		}
 		
