@@ -67,10 +67,13 @@ private:
 		LeftRight
 	};
 
-	//enum class TriangleRotation
-	//{
-	//
-	//};
+	enum class TriangleRotation
+	{
+		LEFT,
+		RIGHT,
+		UP,
+		DOWN
+	};
 	
 	void SetStatus();
 public:
@@ -91,8 +94,10 @@ public:
 	void Spawn(APiston* SpawnedActor);
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)	int Iter = 0;
 	int Iter2 = 0;
+	int Iter3 = 0;
 	UPROPERTY(EditAnywhere) float AngleTurn = 45;
 	AActor* SpawnedActor;
 	void ShotPiston();
 	void ChoseTypeOfConnection();
+	void ChoseTriangleRotation();
 };

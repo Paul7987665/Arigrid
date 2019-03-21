@@ -35,6 +35,7 @@ void UDPMainComponent::BeginPlay()
 	LastItemSeen = nullptr;
 
 	AActor* Pawn = GetOwner();
+	Pawn->InputComponent->BindAction("ChoseTriangleRotation", IE_Pressed, this, &UDPMainComponent::ChoseTriangleRotation);
 	Pawn->InputComponent->BindAction("ChoseTypeOfConnection", IE_Pressed, this, &UDPMainComponent::ChoseTypeOfConnection);
 	Pawn->InputComponent->BindAction("WriteElbowRotationPart", IE_Pressed, this, &UDPMainComponent::WrteElbowRotation);
 	Pawn->InputComponent->BindAction("SwitchMotor", IE_Pressed, this, &UDPMainComponent::SetStatus);
@@ -593,7 +594,23 @@ void UDPMainComponent::Spawn(AMyActor* SpawnedActor)
 {
 	if (LastItemSeen)
 	{
-		SpawnedActor = GetWorld()->SpawnActor<AMyActor>(AMyActor::StaticClass(), LastItemSeen->GetSocketLocation(FName("Socket")) + 21.f*LastItemSeen->GetRightVector(), LastItemSeen->GetSocketRotation(FName("Socket")));
+		switch (Iter3)
+		{
+			case static_cast<int>(TriangleRotation::LEFT) : 
+				SpawnedActor = GetWorld()->SpawnActor<AMyActor>(AMyActor::StaticClass(), LastItemSeen->GetSocketLocation(FName("TriangleLEFT")), LastItemSeen->GetSocketRotation(FName("TriangleLEFT")));
+				break;
+			case static_cast<int>(TriangleRotation::RIGHT) : PRINT(TEXT("Right Triangle Connection"));
+				SpawnedActor = GetWorld()->SpawnActor<AMyActor>(AMyActor::StaticClass(), LastItemSeen->GetSocketLocation(FName("TriangleRIGHT")), LastItemSeen->GetSocketRotation(FName("TriangleRIGHT")));
+				break;
+			case static_cast<int>(TriangleRotation::UP) : PRINT(TEXT("Up Connection"));
+				SpawnedActor = GetWorld()->SpawnActor<AMyActor>(AMyActor::StaticClass(), LastItemSeen->GetSocketLocation(FName("TriangleUP")), LastItemSeen->GetSocketRotation(FName("TriangleUP")));
+				break;
+			case static_cast<int>(TriangleRotation::DOWN) : PRINT(TEXT("Down Connection"));
+				SpawnedActor = GetWorld()->SpawnActor<AMyActor>(AMyActor::StaticClass(), LastItemSeen->GetSocketLocation(FName("TriangleDOWN")), LastItemSeen->GetSocketRotation(FName("TriangleDOWN")));
+				break;
+			default: PRINT(TEXT("ERORR!"));
+		}
+		
 		if (Cast<AMyActorWithDinamicConstrain>(Owner))
 			Cast<AMyActorWithDinamicConstrain>(Owner)->MakeDynamicConnection(SpawnedActor);
 		if (Cast<AElbow>(Owner))
@@ -639,7 +656,7 @@ void UDPMainComponent::ShotPiston()
 void UDPMainComponent::ChoseTypeOfConnection()
 {
 	Iter2++;
-	if (Iter2 > 2)
+	if (Iter2 > static_cast<int>(ConnectionType::LeftRight))
 		Iter2 = 0;
 	switch (Iter2)
 	{
@@ -647,7 +664,27 @@ void UDPMainComponent::ChoseTypeOfConnection()
 			break;
 		case static_cast<int>(ConnectionType::LeftRight) : PRINT(TEXT("LeftRight Connection"));
 			break;
-		default : PRINT(TEXT("UpDown Connection"));
+		case static_cast<int>(ConnectionType::UpDown) : PRINT(TEXT("UpDown Connection"));
+			break;
+		default : PRINT(TEXT("ERORR!"));
+	}
+}
+void UDPMainComponent::ChoseTriangleRotation()
+{
+	Iter3++;
+	if (Iter3 > static_cast<int>(TriangleRotation::DOWN))
+		Iter3 = 0;
+	switch (Iter3)
+	{
+		case static_cast<int>(TriangleRotation::LEFT) : PRINT(TEXT("Left Triangle Connection"));
+			break;
+		case static_cast<int>(TriangleRotation::RIGHT) : PRINT(TEXT("Right Triangle Connection"));
+			break;
+		case static_cast<int>(TriangleRotation::UP) : PRINT(TEXT("Up Connection"));
+			break;
+		case static_cast<int>(TriangleRotation::DOWN) : PRINT(TEXT("Down Connection"));
+			break;
+		default: PRINT(TEXT("ERORR!"));
 	}
 }
 /**/
