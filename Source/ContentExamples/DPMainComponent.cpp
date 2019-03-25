@@ -35,6 +35,7 @@ void UDPMainComponent::BeginPlay()
 	LastItemSeen = nullptr;
 
 	AActor* Pawn = GetOwner();
+	Pawn->InputComponent->BindAction("ChoseElbowRotation", IE_Pressed, this, &UDPMainComponent::ChoseElbowRotation);
 	Pawn->InputComponent->BindAction("ChoseTriangleRotation", IE_Pressed, this, &UDPMainComponent::ChoseTriangleRotation);
 	Pawn->InputComponent->BindAction("ChoseTypeOfConnection", IE_Pressed, this, &UDPMainComponent::ChoseTypeOfConnection);
 	Pawn->InputComponent->BindAction("WriteElbowRotationPart", IE_Pressed, this, &UDPMainComponent::WrteElbowRotation);
@@ -48,7 +49,7 @@ void UDPMainComponent::WrteElbowRotation()
 {
 	if (Owner)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("Actor : %s"), *(Owner->GetName()));
+		UE_LOG(LogTemp, Warning, TEXT("Rotator : %s"), *(FRotator(FQuat(LastBoxSeen->GetRightVector(), 90.f)).ToString()));
 		//UE_LOG(LogTemp, Warning, TEXT("Actor Up Vector: %s"), *(Cast<AElbow>(Hit.GetActor())->GetActorRotation().ToString()));
 		//UE_LOG(LogTemp, Warning, TEXT("Forward     Vector         A: %s"), *(Cast<AElbow>(Owner)->GetActorForwardVector().Rotation().ToString()));
 		//UE_LOG(LogTemp, Warning, TEXT("Forward     Vector         A: %s"), *(Cast<AElbow>(Owner)->GetActorForwardVector().ToString()));
@@ -196,7 +197,16 @@ void UDPMainComponent::Spawn(AElbow * SpawnedActor)
 {
 	if (LastItemSeen)
 	{
-		SpawnedActor = GetWorld()->SpawnActor<AElbow>(AElbow::StaticClass(), LastItemSeen->GetSocketLocation(FName("Socket2")), LastItemSeen->GetSocketRotation(FName("Socket2")));
+		switch (Iter4)
+		{
+			case static_cast<int>(ElbowRotation::UpDown) : 
+				SpawnedActor = GetWorld()->SpawnActor<AElbow>(AElbow::StaticClass(), LastItemSeen->GetSocketLocation(FName("ElbowUPDOWN")), LastItemSeen->GetSocketRotation(FName("ElbowUPDOWN")));
+				break;
+			case static_cast<int>(ElbowRotation::LeftRight) :
+				SpawnedActor = GetWorld()->SpawnActor<AElbow>(AElbow::StaticClass(), LastItemSeen->GetSocketLocation(FName("ElbowLEFTRIGHT")), LastItemSeen->GetSocketRotation(FName("ElbowLEFTRIGHT")));
+				break;
+			default: PRINT(TEXT("ERORR!"));
+		}
 		if (Cast<AMyActorWithDinamicConstrain>(Owner))
 			Cast<AMyActorWithDinamicConstrain>(Owner)->MakeDynamicConnection(SpawnedActor);
 		if (Cast<ABaseActor>(Owner))
@@ -221,9 +231,183 @@ void UDPMainComponent::Spawn(AElbow * SpawnedActor)
 
 void UDPMainComponent::Spawn(AElbow2* SpawnedActor)
 {
+	FRotator AdditionRotation;
 	if (LastItemSeen)
 	{
+		if (Cast<ABaseActor>(Owner))
+		{
+			ABaseActor* BigBox = Cast<ABaseActor>(Owner);
+			FRotator ElbowRotator;
+			switch (Iter4)
+			{
+				case static_cast<int>(ElbowRotation::UpDown) : ElbowRotator = LastItemSeen->GetSocketRotation(FName("ElbowUPDOWN"));
+					break;
+				case static_cast<int>(ElbowRotation::LeftRight) : ElbowRotator = LastItemSeen->GetSocketRotation(FName("ElbowLEFTRIGHT"));
+					break;
+				default: PRINT(TEXT("ERORR!"));
+			}
+			switch (Iter2)
+			{
+				case static_cast<int>(ConnectionType::Center) :
+					if ((LastItemSeen == BigBox->Plate2) || (LastItemSeen == BigBox->Plate8) || (LastItemSeen == BigBox->Plate14) || (LastItemSeen == BigBox->Plate20))
+					{
+						SpawnedActor = GetWorld()->SpawnActor<AElbow2>(AElbow2::StaticClass(), BigBox->BoxMesh->GetSocketLocation(FName("CenterDOWN")) + 100.f*LastItemSeen->GetUpVector(), ElbowRotator);
+						BigBox->MakeDynamicConnection(SpawnedActor);
+					}
+					if ((LastItemSeen == BigBox->Plate1) || (LastItemSeen == BigBox->Plate7) || (LastItemSeen == BigBox->Plate13) || (LastItemSeen == BigBox->Plate19))
+					{
+						SpawnedActor = GetWorld()->SpawnActor<AElbow2>(AElbow2::StaticClass(), BigBox->BoxMesh->GetSocketLocation(FName("CenterRIGHT")) + 100.f*LastItemSeen->GetUpVector(), ElbowRotator);
+						BigBox->MakeDynamicConnection(SpawnedActor);
+					}
+					if ((LastItemSeen == BigBox->Plate3) || (LastItemSeen == BigBox->Plate9) || (LastItemSeen == BigBox->Plate15) || (LastItemSeen == BigBox->Plate21))
+					{
+						SpawnedActor = GetWorld()->SpawnActor<AElbow2>(AElbow2::StaticClass(), BigBox->BoxMesh->GetSocketLocation(FName("CenterBACK")) + 100.f*LastItemSeen->GetUpVector(), ElbowRotator);
+						BigBox->MakeDynamicConnection(SpawnedActor);
+					}
+					if ((LastItemSeen == BigBox->Plate4) || (LastItemSeen == BigBox->Plate10) || (LastItemSeen == BigBox->Plate16) || (LastItemSeen == BigBox->Plate22))
+					{
+						SpawnedActor = GetWorld()->SpawnActor<AElbow2>(AElbow2::StaticClass(), BigBox->BoxMesh->GetSocketLocation(FName("CenterLEFT")) + 100.f*LastItemSeen->GetUpVector(), ElbowRotator);
+						BigBox->MakeDynamicConnection(SpawnedActor);
+					}
+					if ((LastItemSeen == BigBox->Plate5) || (LastItemSeen == BigBox->Plate11) || (LastItemSeen == BigBox->Plate17) || (LastItemSeen == BigBox->Plate23))
+					{
+						SpawnedActor = GetWorld()->SpawnActor<AElbow2>(AElbow2::StaticClass(), BigBox->BoxMesh->GetSocketLocation(FName("CenterUP")) + 100.f*LastItemSeen->GetUpVector(), ElbowRotator);
+						BigBox->MakeDynamicConnection(SpawnedActor);
+					}
+					if ((LastItemSeen == BigBox->Plate6) || (LastItemSeen == BigBox->Plate12) || (LastItemSeen == BigBox->Plate18) || (LastItemSeen == BigBox->Plate24))
+					{
+						SpawnedActor = GetWorld()->SpawnActor<AElbow2>(AElbow2::StaticClass(), BigBox->BoxMesh->GetSocketLocation(FName("CenterFORWARD")) + 100.f*LastItemSeen->GetUpVector(), ElbowRotator);
+						BigBox->MakeDynamicConnection(SpawnedActor);
+					}
+					break;
+				case static_cast<int>(ConnectionType::LeftRight) :
+					if ((LastItemSeen == BigBox->Plate1) || (LastItemSeen == BigBox->Plate7))
+					{
+						SpawnedActor = GetWorld()->SpawnActor<AElbow2>(AElbow2::StaticClass(), BigBox->BoxMesh->GetSocketLocation(FName("RIGHTFORWARD")) + 100.f*LastItemSeen->GetUpVector(), ElbowRotator);
+						BigBox->MakeDynamicConnection(SpawnedActor);
+					}
+					if ((LastItemSeen == BigBox->Plate13) || (LastItemSeen == BigBox->Plate19))
+					{
+						SpawnedActor = GetWorld()->SpawnActor<AElbow2>(AElbow2::StaticClass(), BigBox->BoxMesh->GetSocketLocation(FName("RIGHTBACK")) + 100.f*LastItemSeen->GetUpVector(), ElbowRotator);
+						BigBox->MakeDynamicConnection(SpawnedActor);
+					}
+					if ((LastItemSeen == BigBox->Plate3) || (LastItemSeen == BigBox->Plate9))
+					{
+						SpawnedActor = GetWorld()->SpawnActor<AElbow2>(AElbow2::StaticClass(), BigBox->BoxMesh->GetSocketLocation(FName("BACKRIGHT")) + 100.f*LastItemSeen->GetUpVector(), ElbowRotator);
+						BigBox->MakeDynamicConnection(SpawnedActor);
+					}
+					if ((LastItemSeen == BigBox->Plate15) || (LastItemSeen == BigBox->Plate21))
+					{
+						SpawnedActor = GetWorld()->SpawnActor<AElbow2>(AElbow2::StaticClass(), BigBox->BoxMesh->GetSocketLocation(FName("BACKLEFT")) + 100.f*LastItemSeen->GetUpVector(), ElbowRotator);
+						BigBox->MakeDynamicConnection(SpawnedActor);
+					}
+					if ((LastItemSeen == BigBox->Plate10) || (LastItemSeen == BigBox->Plate22))
+					{
+						SpawnedActor = GetWorld()->SpawnActor<AElbow2>(AElbow2::StaticClass(), BigBox->BoxMesh->GetSocketLocation(FName("LEFTBACK")) + 100.f*LastItemSeen->GetUpVector(), ElbowRotator);
+						BigBox->MakeDynamicConnection(SpawnedActor);
+					}
+					if ((LastItemSeen == BigBox->Plate4) || (LastItemSeen == BigBox->Plate16))
+					{
+						SpawnedActor = GetWorld()->SpawnActor<AElbow2>(AElbow2::StaticClass(), BigBox->BoxMesh->GetSocketLocation(FName("LEFTFORWARD")) + 100.f*LastItemSeen->GetUpVector(), ElbowRotator);
+						BigBox->MakeDynamicConnection(SpawnedActor);
+					}
+					if ((LastItemSeen == BigBox->Plate12) || (LastItemSeen == BigBox->Plate24))
+					{
+						SpawnedActor = GetWorld()->SpawnActor<AElbow2>(AElbow2::StaticClass(), BigBox->BoxMesh->GetSocketLocation(FName("FORWARDLEFT")) + 100.f*LastItemSeen->GetUpVector(), ElbowRotator);
+						BigBox->MakeDynamicConnection(SpawnedActor);
+					}
+					if ((LastItemSeen == BigBox->Plate6) || (LastItemSeen == BigBox->Plate18))
+					{
+						SpawnedActor = GetWorld()->SpawnActor<AElbow2>(AElbow2::StaticClass(), BigBox->BoxMesh->GetSocketLocation(FName("FORWARDRIGHT")) + 100.f*LastItemSeen->GetUpVector(), ElbowRotator);
+						BigBox->MakeDynamicConnection(SpawnedActor);
+					}
+					if ((LastItemSeen == BigBox->Plate5) || (LastItemSeen == BigBox->Plate11))
+					{
+						SpawnedActor = GetWorld()->SpawnActor<AElbow2>(AElbow2::StaticClass(), BigBox->BoxMesh->GetSocketLocation(FName("UPRIGHT")) + 100.f*LastItemSeen->GetUpVector(), ElbowRotator);
+						BigBox->MakeDynamicConnection(SpawnedActor);
+					}
+					if ((LastItemSeen == BigBox->Plate17) || (LastItemSeen == BigBox->Plate23))
+					{
+						SpawnedActor = GetWorld()->SpawnActor<AElbow2>(AElbow2::StaticClass(), BigBox->BoxMesh->GetSocketLocation(FName("UPLEFT")) + 100.f*LastItemSeen->GetUpVector(), ElbowRotator);
+						BigBox->MakeDynamicConnection(SpawnedActor);
+					}
+					if ((LastItemSeen == BigBox->Plate2) || (LastItemSeen == BigBox->Plate8))
+					{
+						SpawnedActor = GetWorld()->SpawnActor<AElbow2>(AElbow2::StaticClass(), BigBox->BoxMesh->GetSocketLocation(FName("DOWNRIGHT")) + 100.f*LastItemSeen->GetUpVector(), ElbowRotator);
+						BigBox->MakeDynamicConnection(SpawnedActor);
+					}
+					if ((LastItemSeen == BigBox->Plate14) || (LastItemSeen == BigBox->Plate20))
+					{
+						SpawnedActor = GetWorld()->SpawnActor<AElbow2>(AElbow2::StaticClass(), BigBox->BoxMesh->GetSocketLocation(FName("DOWNLEFT")) + 100.f*LastItemSeen->GetUpVector(), ElbowRotator);
+						BigBox->MakeDynamicConnection(SpawnedActor);
+					}
+					break;
+				case static_cast<int>(ConnectionType::UpDown) :
+					if ((LastItemSeen == BigBox->Plate1) || (LastItemSeen == BigBox->Plate13))
+					{
+						SpawnedActor = GetWorld()->SpawnActor<AElbow2>(AElbow2::StaticClass(), BigBox->BoxMesh->GetSocketLocation(FName("RIGHTUP")) + 100.f*LastItemSeen->GetUpVector(), ElbowRotator);
+						BigBox->MakeDynamicConnection(SpawnedActor);
+					}
+					if ((LastItemSeen == BigBox->Plate7) || (LastItemSeen == BigBox->Plate19))
+					{
+						SpawnedActor = GetWorld()->SpawnActor<AElbow2>(AElbow2::StaticClass(), BigBox->BoxMesh->GetSocketLocation(FName("RIGHTDOWN")) + 100.f*LastItemSeen->GetUpVector(), ElbowRotator);
+						BigBox->MakeDynamicConnection(SpawnedActor);
+					}
+					if ((LastItemSeen == BigBox->Plate3) || (LastItemSeen == BigBox->Plate15))
+					{
+						SpawnedActor = GetWorld()->SpawnActor<AElbow2>(AElbow2::StaticClass(), BigBox->BoxMesh->GetSocketLocation(FName("BACKUP")) + 100.f*LastItemSeen->GetUpVector(), ElbowRotator);
+						BigBox->MakeDynamicConnection(SpawnedActor);
+					}
+					if ((LastItemSeen == BigBox->Plate9) || (LastItemSeen == BigBox->Plate21))
+					{
+						SpawnedActor = GetWorld()->SpawnActor<AElbow2>(AElbow2::StaticClass(), BigBox->BoxMesh->GetSocketLocation(FName("BACKDOWN")) + 100.f*LastItemSeen->GetUpVector(), ElbowRotator);
+						BigBox->MakeDynamicConnection(SpawnedActor);
+					}
+					if ((LastItemSeen == BigBox->Plate16) || (LastItemSeen == BigBox->Plate22))
+					{
+						SpawnedActor = GetWorld()->SpawnActor<AElbow2>(AElbow2::StaticClass(), BigBox->BoxMesh->GetSocketLocation(FName("LEFTDOWN")) + 100.f*LastItemSeen->GetUpVector(), ElbowRotator);
+						BigBox->MakeDynamicConnection(SpawnedActor);
+					}
+					if ((LastItemSeen == BigBox->Plate6) || (LastItemSeen == BigBox->Plate12))
+					{
+						SpawnedActor = GetWorld()->SpawnActor<AElbow2>(AElbow2::StaticClass(), BigBox->BoxMesh->GetSocketLocation(FName("FORWARDUP")) + 100.f*LastItemSeen->GetUpVector(), ElbowRotator);
+						BigBox->MakeDynamicConnection(SpawnedActor);
+					}
+					if ((LastItemSeen == BigBox->Plate18) || (LastItemSeen == BigBox->Plate24))
+					{
+						SpawnedActor = GetWorld()->SpawnActor<AElbow2>(AElbow2::StaticClass(), BigBox->BoxMesh->GetSocketLocation(FName("FORWARDDOWN")) + 100.f*LastItemSeen->GetUpVector(), ElbowRotator);
+						BigBox->MakeDynamicConnection(SpawnedActor);
+					}
+					if ((LastItemSeen == BigBox->Plate11) || (LastItemSeen == BigBox->Plate23))
+					{
+						SpawnedActor = GetWorld()->SpawnActor<AElbow2>(AElbow2::StaticClass(), BigBox->BoxMesh->GetSocketLocation(FName("UPBACK")) + 100.f*LastItemSeen->GetUpVector(), ElbowRotator);
+						BigBox->MakeDynamicConnection(SpawnedActor);
+					}
+					if ((LastItemSeen == BigBox->Plate5) || (LastItemSeen == BigBox->Plate17))
+					{
+						SpawnedActor = GetWorld()->SpawnActor<AElbow2>(AElbow2::StaticClass(), BigBox->BoxMesh->GetSocketLocation(FName("UPFORWARD")) + 100.f*LastItemSeen->GetUpVector(), ElbowRotator);
+						BigBox->MakeDynamicConnection(SpawnedActor);
+					}
+					if ((LastItemSeen == BigBox->Plate14) || (LastItemSeen == BigBox->Plate2))
+					{
+						SpawnedActor = GetWorld()->SpawnActor<AElbow2>(AElbow2::StaticClass(), BigBox->BoxMesh->GetSocketLocation(FName("DOWNFORWARD")) + 100.f*LastItemSeen->GetUpVector(), ElbowRotator);
+						BigBox->MakeDynamicConnection(SpawnedActor);
+					}
+					if ((LastItemSeen == BigBox->Plate20) || (LastItemSeen == BigBox->Plate8))
+					{
+						SpawnedActor = GetWorld()->SpawnActor<AElbow2>(AElbow2::StaticClass(), BigBox->BoxMesh->GetSocketLocation(FName("DOWNBACK")) + 100.f*LastItemSeen->GetUpVector(), ElbowRotator);
+						BigBox->MakeDynamicConnection(SpawnedActor);
+					}
+					if ((LastItemSeen == BigBox->Plate4) || (LastItemSeen == BigBox->Plate10))
+					{
+						SpawnedActor = GetWorld()->SpawnActor<AElbow2>(AElbow2::StaticClass(), BigBox->BoxMesh->GetSocketLocation(FName("LEFTUP")) + 100.f*LastItemSeen->GetUpVector(), ElbowRotator);
+						BigBox->MakeDynamicConnection(SpawnedActor);
+					}
+					break;	
+				default: PRINT(TEXT("ERORR!"));
+			}
 
+		}
 	}
 	else
 	{
@@ -402,7 +586,6 @@ void UDPMainComponent::Spawn(ABladeMotor2 * SpawnedActor)
 					BigBox->MakeDynamicConnection(SpawnedActor);
 				}
 				break;
-
 			}
 		}
 		
@@ -582,6 +765,90 @@ void UDPMainComponent::Spawn(ABaseActor* SpawnedActor)
 					break;
 			}
 		}
+		if (Cast<AElbow2>(Owner))
+		{
+			AElbow2* Elbow2 = Cast<AElbow2>(Owner);
+			switch (Iter2)
+			{
+				case static_cast<int>(ConnectionType::Center) :
+					if ((LastItemSeen == Elbow2->Plate2) || (LastItemSeen == Elbow2->Plate8) || (LastItemSeen == Elbow2->Plate4) || (LastItemSeen == Elbow2->Plate6))
+					{
+						SpawnedActor = GetWorld()->SpawnActor<ABaseActor>(ABaseActor::StaticClass(), Elbow2->Part2->GetSocketLocation(FName("CenterFOEWARD")), Elbow2->Part2->GetSocketRotation(FName("CenterFORWARD")));
+						Elbow2->MakeDynamicConnection(SpawnedActor, LastItemSeen);
+					}
+					if ((LastItemSeen == Elbow2->Plate1) || (LastItemSeen == Elbow2->Plate3) || (LastItemSeen == Elbow2->Plate5) || (LastItemSeen == Elbow2->Plate7))
+					{
+						SpawnedActor = GetWorld()->SpawnActor<ABaseActor>(ABaseActor::StaticClass(), Elbow2->Part1->GetSocketLocation(FName("CenterFOEWARD")), Elbow2->Part1->GetSocketRotation(FName("CenterFORWARD")));
+						Elbow2->MakeDynamicConnection(SpawnedActor, LastItemSeen);
+					}
+					if ((LastItemSeen == Elbow2->Plate14) || (LastItemSeen == Elbow2->Plate16))
+					{
+						SpawnedActor = GetWorld()->SpawnActor<ABaseActor>(ABaseActor::StaticClass(), Elbow2->Part2->GetSocketLocation(FName("RIGHT")), Elbow2->Part2->GetSocketRotation(FName("RIGHT")));
+						Elbow2->MakeDynamicConnection(SpawnedActor, LastItemSeen);
+					}
+					if ((LastItemSeen == Elbow2->Plate10) || (LastItemSeen == Elbow2->Plate12))
+					{
+						SpawnedActor = GetWorld()->SpawnActor<ABaseActor>(ABaseActor::StaticClass(), Elbow2->Part2->GetSocketLocation(FName("LEFT")), Elbow2->Part2->GetSocketRotation(FName("LEFT")));
+						Elbow2->MakeDynamicConnection(SpawnedActor, LastItemSeen);
+					}
+					if((LastItemSeen == Elbow2->Plate13) || (LastItemSeen == Elbow2->Plate19))
+					{
+						SpawnedActor = GetWorld()->SpawnActor<ABaseActor>(ABaseActor::StaticClass(), Elbow2->Part1->GetSocketLocation(FName("RIGHT")), Elbow2->Part1->GetSocketRotation(FName("LEFT")));
+						Elbow2->MakeDynamicConnection(SpawnedActor, LastItemSeen);
+					}
+					if((LastItemSeen == Elbow2->Plate15) || (LastItemSeen == Elbow2->Plate9))
+					{
+						SpawnedActor = GetWorld()->SpawnActor<ABaseActor>(ABaseActor::StaticClass(), Elbow2->Part1->GetSocketLocation(FName("LEFT")), Elbow2->Part1->GetSocketRotation(FName("RIGHT")));
+						Elbow2->MakeDynamicConnection(SpawnedActor, LastItemSeen);
+					}
+					break;
+				case static_cast<int>(ConnectionType::LeftRight) :
+					if ((LastItemSeen == Elbow2->Plate2) || (LastItemSeen == Elbow2->Plate4))
+					{
+						SpawnedActor = GetWorld()->SpawnActor<ABaseActor>(ABaseActor::StaticClass(), Elbow2->Part2->GetSocketLocation(FName("CenterLEFT")), Elbow2->Part2->GetSocketRotation(FName("CenterLEFT")));
+						Elbow2->MakeDynamicConnection(SpawnedActor, LastItemSeen);
+					}
+					if ((LastItemSeen == Elbow2->Plate6) || (LastItemSeen == Elbow2->Plate8))
+					{
+						SpawnedActor = GetWorld()->SpawnActor<ABaseActor>(ABaseActor::StaticClass(), Elbow2->Part2->GetSocketLocation(FName("CenterRIGHT")), Elbow2->Part2->GetSocketRotation(FName("CenterRIGHT")));
+						Elbow2->MakeDynamicConnection(SpawnedActor, LastItemSeen);
+					}
+					if ((LastItemSeen == Elbow2->Plate5) || (LastItemSeen == Elbow2->Plate7))
+					{
+						SpawnedActor = GetWorld()->SpawnActor<ABaseActor>(ABaseActor::StaticClass(), Elbow2->Part1->GetSocketLocation(FName("CenterRIGHT")), Elbow2->Part1->GetSocketRotation(FName("CenterLEFT")));
+						Elbow2->MakeDynamicConnection(SpawnedActor, LastItemSeen);
+					}
+					if ((LastItemSeen == Elbow2->Plate1) || (LastItemSeen == Elbow2->Plate3))
+					{
+						SpawnedActor = GetWorld()->SpawnActor<ABaseActor>(ABaseActor::StaticClass(), Elbow2->Part1->GetSocketLocation(FName("CenterLEFT")), Elbow2->Part1->GetSocketRotation(FName("CenterLEFT")));
+						Elbow2->MakeDynamicConnection(SpawnedActor, LastItemSeen);
+					}
+					break;
+				case static_cast<int>(ConnectionType::UpDown) : 
+					if ((LastItemSeen == Elbow2->Plate2) || (LastItemSeen == Elbow2->Plate8))
+					{
+						SpawnedActor = GetWorld()->SpawnActor<ABaseActor>(ABaseActor::StaticClass(), Elbow2->Part2->GetSocketLocation(FName("CenterDOWN")), Elbow2->Part2->GetSocketRotation(FName("CenterDOWN")));
+						Elbow2->MakeDynamicConnection(SpawnedActor, LastItemSeen);
+					}
+					if ((LastItemSeen == Elbow2->Plate6) || (LastItemSeen == Elbow2->Plate4))
+					{
+						SpawnedActor = GetWorld()->SpawnActor<ABaseActor>(ABaseActor::StaticClass(), Elbow2->Part2->GetSocketLocation(FName("CenterUP")), Elbow2->Part2->GetSocketRotation(FName("CenterUP")));
+						Elbow2->MakeDynamicConnection(SpawnedActor, LastItemSeen);
+					}
+					if ((LastItemSeen == Elbow2->Plate1) || (LastItemSeen == Elbow2->Plate7))
+					{
+						SpawnedActor = GetWorld()->SpawnActor<ABaseActor>(ABaseActor::StaticClass(), Elbow2->Part1->GetSocketLocation(FName("CenterUP")), Elbow2->Part1->GetSocketRotation(FName("CenterUP")));
+						Elbow2->MakeDynamicConnection(SpawnedActor, LastItemSeen);
+					}
+					if ((LastItemSeen == Elbow2->Plate5) || (LastItemSeen == Elbow2->Plate3))
+					{
+						SpawnedActor = GetWorld()->SpawnActor<ABaseActor>(ABaseActor::StaticClass(), Elbow2->Part1->GetSocketLocation(FName("CenterDOWN")), Elbow2->Part1->GetSocketRotation(FName("CenterDOWN")));
+						Elbow2->MakeDynamicConnection(SpawnedActor, LastItemSeen);
+					}
+					break;
+				default: PRINT(TEXT("ERORR!"));
+			}
+		}
 	}
 	else
 	{
@@ -683,6 +950,20 @@ void UDPMainComponent::ChoseTriangleRotation()
 		case static_cast<int>(TriangleRotation::UP) : PRINT(TEXT("Up Connection"));
 			break;
 		case static_cast<int>(TriangleRotation::DOWN) : PRINT(TEXT("Down Connection"));
+			break;
+		default: PRINT(TEXT("ERORR!"));
+	}
+}
+void UDPMainComponent::ChoseElbowRotation()
+{
+	Iter4++;
+	if (Iter4 > static_cast<int>(ElbowRotation::LeftRight))
+		Iter4 = 0;
+	switch (Iter4)
+	{
+		case static_cast<int>(ElbowRotation::UpDown) : PRINT(TEXT("UpDown Elbow Connection"));
+			break;
+		case static_cast<int>(ElbowRotation::LeftRight) : PRINT(TEXT("LeftRight Elbow Connection"));
 			break;
 		default: PRINT(TEXT("ERORR!"));
 	}

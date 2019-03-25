@@ -75,6 +75,11 @@ private:
 		DOWN
 	};
 	
+	enum class ElbowRotation
+	{
+		UpDown,
+		LeftRight
+	};
 	void SetStatus();
 public:
 	void TurnElbow();
@@ -95,9 +100,11 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)	int Iter = 0;
 	int Iter2 = 0;
 	int Iter3 = 0;
+	int Iter4 = 0;
 	UPROPERTY(EditAnywhere) float AngleTurn = 45;
 	AActor* SpawnedActor;
 	void ShotPiston();
 	void ChoseTypeOfConnection();
 	void ChoseTriangleRotation();
+	void ChoseElbowRotation();
 };

@@ -102,7 +102,7 @@ AElbow2::AElbow2()
 	Plate2->SetWorldScale3D(FVector(1.f, 1.f, 1.f));
 
 	Plate3 = CreateDefaultSubobject<UMyStaticMeshComponent>(TEXT("Plate3"));
-	Plate3->SetRelativeLocationAndRotation(FVector(-99.5f, -25.f, -2.f), FRotator(-90.0, 180.0, 0.0));
+	Plate3->SetRelativeLocationAndRotation(FVector(-99.5f, -25.f, -2.f), FRotator(90.0, 0.0, 0.0));
 	Plate3->SetupAttachment(Part1);
 	Plate3->SetMaterial(0, Blue);
 	Plate3->SetWorldScale3D(FVector(1.f, 1.f, 1.f));
@@ -126,7 +126,7 @@ AElbow2::AElbow2()
 	Plate6->SetWorldScale3D(FVector(1.f, 1.f, 1.f));
 
 	Plate7 = CreateDefaultSubobject<UMyStaticMeshComponent>(TEXT("Plate7"));
-	Plate7->SetRelativeLocationAndRotation(FVector(-99.5f, 25.0f, -52.0f), FRotator(-90.0, 180.0, 0.0));
+	Plate7->SetRelativeLocationAndRotation(FVector(-99.5f, 25.0f, -52.0f), FRotator(90.0, 0.0, 0.0));
 	Plate7->SetupAttachment(Part1);
 	Plate7->SetMaterial(0, Blue);
 	Plate7->SetWorldScale3D(FVector(1.f, 1.f, 1.f));

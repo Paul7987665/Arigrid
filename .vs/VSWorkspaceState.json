@@ -1,9 +1,8 @@
 {
   "ExpandedNodes": [
     "",
-    "\\Arigrid",
-    "\\Arigrid\\ArigridSource"
+    "\\Source",
+    "\\Source\\ContentExamples"
   ],
-  "SelectedNode": "\\Arigrid\\ArigridSource\\BaseActor.h",
   "PreviewInSolutionExplorer": false
 }
